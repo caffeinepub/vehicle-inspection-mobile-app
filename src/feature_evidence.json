@@ -1,0 +1,70 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-add-a-user-visible-my-reports-experience-that-lets-authenticated-users-access-pdf-reports-for-their-inspections-replace-the-current-dashboard-my-reports-placeholder-navigation-with-a-real-reports-view",
+      "featureTitle": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/ReportsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-wire-the-frontend-inspection-list-report-list-to-the-new-backend-inspection-summaries-api-and-remove-the-current-stubbed-empty-implementation-in-the-react-query-hook-s",
+      "featureTitle": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/ReportsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-camera-photo-capture-step-is-clearly-presented-as-the-way-to-add-photos-camera-option-in-the-inspection-workflow-using-existing-photocapturepage-behavior-and-ensure-navigation-into-that-step-is-obvious-and-consistent",
+      "featureTitle": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
+      "files": [
+        "frontend/src/pages/PhotoCapturePage.tsx",
+        "frontend/src/pages/PreInspectionFormPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

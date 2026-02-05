@@ -1,0 +1,93 @@
+{
+  "kind": "build_request",
+  "title": "Expose camera photo capture and PDF report options in the inspection flow",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Dashboard “My Reports” no longer routes to a “Coming Soon” placeholder.",
+        "A reports screen is available in the app UI and is reachable from the Dashboard.",
+        "From the reports screen, a user can select an inspection and open the existing PDF preview page for that inspection."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement a backend query API that returns the current caller’s inspection summaries for the detailed inspection model, so the frontend can list inspections/reports without stubs.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes a query method that returns an array of summaries for the caller’s DetailedInspection records (id, vehicle number, make/model, timestamp).",
+        "The method enforces the same access control rules as other user-facing inspection queries (only users/admins as appropriate).",
+        "The method does not trap for valid authenticated users who have zero inspections (returns an empty list)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The inspections list on the Dashboard can display real data (no longer always empty when the user has inspections).",
+        "The reports screen uses the same summaries data source and can navigate to PDF preview for the selected inspection ID.",
+        "Loading and empty states are handled with clear English text (e.g., “Loading reports…”, “No reports yet”)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "During the inspection flow, users can clearly reach the Photo Capture page from the preceding step without confusion.",
+        "On Photo Capture page, the primary action to begin taking photos is clearly labeled in English and uses the existing camera start/capture flow.",
+        "If camera access is unsupported or denied, the UI shows an actionable English error message (using the existing error handling) and provides a retry path."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
+    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
+    "Do not modify frontend immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx."
+  ],
+  "nonGoals": [
+    "Do not implement true binary PDF generation/storage inside the canister in this change (keep the existing print/download behavior unless separately requested).",
+    "Do not add third-party authentication providers (Internet Identity only).",
+    "Do not add real-time communication features."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

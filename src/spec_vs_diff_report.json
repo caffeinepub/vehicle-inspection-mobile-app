@@ -1,0 +1,30 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T06:49:52.722Z",
+  "summary": "Frontend adds a real “My Reports” flow (Dashboard routes to new ReportsPage) and wires inspection/report listing to a React Query hook calling a backend method named getCallerInspectionSummaries. Photo capture UX/navigation appears improved with clearer error/retry messaging and direct navigation into the photo-capture step. However, the diff summary does not provide explicit evidence that the backend query API (getCallerInspectionSummaries) is actually implemented with the required access control and empty-list behavior.",
+  "missing_requirements": [
+    {
+      "id": "REQ-2",
+      "requirement": "Implement a backend query API that returns the current caller’s inspection summaries for the detailed inspection model (id, vehicle number, make/model, timestamp), enforcing the same access control rules as other user-facing inspection queries and returning an empty list for users with zero inspections.",
+      "reason": "The frontend hook calls actor.getCallerInspectionSummaries(), but the provided backend diff snippet is truncated and does not show any added/modified query method implementation or its access-control/empty-list behavior. Only the InspectionSummary type is visible.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/PhotoCapturePage.tsx",
+    "frontend/src/pages/PreInspectionFormPage.tsx",
+    "frontend/src/pages/ReportsPage.tsx",
+    "project_state.json"
+  ]
+}

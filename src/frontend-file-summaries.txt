@@ -1,0 +1,23 @@
+{
+  "frontend/src/App.tsx": "Main application component managing multi-page navigation flow including the new reports page, with inspection ID state management and authentication.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all detailed inspection CRUD operations including real backend integration for fetching user inspection summaries via getCallerInspectionSummaries.",
+  "frontend/src/pages/LoginPage.tsx": "Login page component with mobile number input field and Internet Identity authentication integration.",
+  "frontend/src/pages/DashboardPage.tsx": "Dashboard page displaying action cards for starting new inspections and viewing reports, plus a list of recent inspection summaries with proper loading and empty states.",
+  "frontend/src/pages/VehicleDetailsPage.tsx": "Vehicle details form page that collects header and vehicle specs data, creates a detailed inspection record, and navigates to the pre-inspection form step.",
+  "frontend/src/components/Header.tsx": "Application header with branding, navigation, and user dropdown menu displaying truncated principal ID with conditional dashboard navigation button.",
+  "frontend/src/components/Footer.tsx": "Application footer with attribution and caffeine.ai branding link.",
+  "frontend/src/components/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup requiring name input before accessing the application.",
+  "frontend/src/backend.d.ts": "TypeScript interface definitions for backend integration matching the actual backend API without UserProfile type.",
+  "frontend/src/index.css": "Global styles with OKLCH color system featuring a professional blue/purple color scheme for both light and dark modes.",
+  "frontend/src/pages/PhotoCapturePage.tsx": "Photo capture page using the prefabricated useCamera hook with GPS watermarking, featuring clear English error messages and actionable retry paths for camera permission issues.",
+  "frontend/src/pages/RemarksPage.tsx": "Remarks input page allowing users to add inspection observations with character limit validation and skip option.",
+  "frontend/src/pages/PdfPreviewPage.tsx": "PDF preview page rendering the A4-friendly Pre-Inspection Format Car report layout with validation checks, preventing generation/print until all required fields are completed.",
+  "frontend/src/pages/PreInspectionFormPage.tsx": "Pre-inspection form page implementing the complete checklist layout with an informational alert about the upcoming camera photo capture step.",
+  "frontend/src/components/preInspection/PartsChecklistTable.tsx": "Table component for managing parts checklist with mutually exclusive status selections (Safe/Scratch/Pressed/Broken) per row and optional remarks.",
+  "frontend/src/components/preInspection/GlassStatusTable.tsx": "Table component for managing glass status with mutually exclusive Safe/Broken selections per glass item and optional remarks.",
+  "frontend/src/components/preInspection/AccessoriesSection.tsx": "Tabbed section component for managing electrical and non-electrical accessories with working/present status and remarks.",
+  "frontend/src/components/preInspection/YesNoField.tsx": "Reusable Yes/No toggle field component with mutually exclusive radio button selection.",
+  "frontend/src/utils/preInspectionSchema.ts": "Schema utilities defining default parts and glasses lists matching the uploaded form structure.",
+  "frontend/src/utils/reportValidation.ts": "Report validation utilities that check for required fields and return user-friendly error messages in English.",
+  "frontend/src/pages/ReportsPage.tsx": "Reports page that lists all user inspections with vehicle details and timestamps, allowing users to select and view PDF reports for any inspection."
+}

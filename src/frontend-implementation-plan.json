@@ -1,0 +1,80 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Expose reports list and camera photo capture entry points in inspection flow",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Replace the Dashboard “My Reports” placeholder with a real reports view that lists the user’s inspections and opens the existing PDF preview for a selected inspection.",
+      "acceptanceCriteria": [
+        "Dashboard “My Reports” no longer routes to a “Coming Soon” placeholder.",
+        "A reports screen is available in the app UI and is reachable from the Dashboard.",
+        "From the reports screen, a user can select an inspection and open the existing PDF preview page for that inspection."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ReportsPage.tsx",
+          "operation": "create",
+          "description": "Create a My Reports page that uses the existing inspection summaries query hook to render a selectable list of the caller’s inspections, and on selection navigates to the existing PdfPreviewPage while setting the selected inspection ID (include clear Loading/Empty/Failure UI states)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new 'reports' page to the app’s page union and routing switch; wire navigation so the ReportsPage is reachable from Dashboard, and ensure selecting a report sets currentInspectionId before navigating to 'pdf-preview'."
+        },
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "modify",
+          "description": "Change the “My Reports” card click handler to navigate to the new 'reports' page (instead of the 'placeholder' route) and update the prop typing accordingly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Replace stubbed inspection/report list data with the real backend inspection summaries query and ensure the Dashboard + Reports list have loading and empty states.",
+      "acceptanceCriteria": [
+        "The inspections list on the Dashboard can display real data (no longer always empty when the user has inspections).",
+        "The reports screen uses the same summaries data source and can navigate to PDF preview for the selected inspection ID.",
+        "Loading and empty states are handled with clear English text (e.g., “Loading reports…”, “No reports yet”)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Remove the stubbed empty implementation for the user inspections query and fetch real summaries using the existing backend actor capability getCallerInspectionSummaries(); use the generated backend types for InspectionSummary and provide appropriate query enablement when authenticated."
+        },
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "modify",
+          "description": "Update the Dashboard inspections/recent inspections section to handle loading and empty states with clear English text and to render real inspection summary data returned by the updated React Query hook."
+        },
+        {
+          "path": "frontend/src/pages/ReportsPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the reports list uses the same updated inspection summaries hook as the Dashboard and shows clear English loading and empty states (e.g., “Loading reports…”, “No reports yet”)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Make the camera photo capture step clearly presented and consistently reachable within the inspection workflow while keeping the existing PhotoCapturePage camera flow and error handling.",
+      "acceptanceCriteria": [
+        "During the inspection flow, users can clearly reach the Photo Capture page from the preceding step without confusion.",
+        "On Photo Capture page, the primary action to begin taking photos is clearly labeled in English and uses the existing camera start/capture flow.",
+        "If camera access is unsupported or denied, the UI shows an actionable English error message (using the existing error handling) and provides a retry path."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/PreInspectionFormPage.tsx",
+          "operation": "modify",
+          "description": "Reinforce the step transition into Photo Capture with clear English helper text near the Next button (e.g., indicating the next step uses the device camera to add inspection photos) and keep navigation consistent to the existing 'photo-capture' page."
+        },
+        {
+          "path": "frontend/src/pages/PhotoCapturePage.tsx",
+          "operation": "modify",
+          "description": "Confirm the camera entry experience is unambiguous: keep the primary CTA text in clear English for starting the camera and capturing photos, and ensure permission/denial/unsupported states show actionable English messaging with a retry path; continue to use the existing useCamera hook from the selected 'camera' component to power camera start/capture/retry behavior (Verify the component's usage instructions before implementing)."
+        }
+      ]
+    }
+  ]
+}

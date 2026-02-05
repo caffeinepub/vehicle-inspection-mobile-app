@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 11,
+  "summary": "A Kotlin Android Vehicle Inspection application with a multi-activity workflow (Login → Dashboard → Vehicle Details). The next planned stage is to add in-app camera photo capture for inspections and generate a PDF report from captured photos and entered vehicle details.",
+  "existing_features": [
+    {
+      "id": "IF-1",
+      "title": "Internet Identity authentication (login/logout)",
+      "synonyms": [
+        "II auth",
+        "DFINITY AuthClient",
+        "DelegationIdentity login"
+      ],
+      "description": "Provides authentication via Internet Identity using @dfinity/auth-client, including loading an existing session on app start, initiating login with a long TTL delegation, and logout that clears identity state.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Backend actor creation and identity-bound caching",
+      "synonyms": [
+        "useActor hook",
+        "actor recreation on identity change"
+      ],
+      "description": "Creates an anonymous or authenticated backend actor depending on identity presence, caches it via React Query keyed by principal, and invalidates/refetches all non-actor queries when the actor changes.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Secret-based access control initialization (admin bootstrap)",
+      "synonyms": [
+        "admin token init",
+        "_initializeAccessControlWithSecret"
+      ],
+      "description": "On actor creation, calls a backend init function that compares a user-provided secret with the canister’s CAFFEINE_ADMIN_TOKEN env var to assign the first valid caller as admin; otherwise assigns new callers as users.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "Role-based access control in backend",
+      "synonyms": [
+        "RBAC",
+        "admin/user/guest roles"
+      ],
+      "description": "Implements user roles (admin/user/guest), permission checks, admin-only role assignment, and queries to get caller role or admin status; used to guard all inspection/profile/dashboard endpoints.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "Create vehicle inspection with validated vehicle details",
+      "synonyms": [
+        "start inspection",
+        "vehicle details form"
+      ],
+      "description": "Frontend collects and validates vehicle number, engine/chassis numbers, make/model, and odometer; backend creates a new VehicleInspection record and indexes it under the creating principal, returning an inspection ID.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Capture multiple photos with GPS + timestamp watermarking",
+      "synonyms": [
+        "camera capture",
+        "watermarked photos",
+        "geotagging"
+      ],
+      "description": "Uses getUserMedia to access the environment camera, optionally fetches geolocation, draws a timestamp+GPS watermark onto a canvas, stores captured photos as data URLs for preview, and allows deleting captured photos before submission.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Persist and submit photo metadata for an inspection",
+      "synonyms": [
+        "addMultiplePhotos",
+        "photo metadata upload"
+      ],
+      "description": "Converts captured photos into PhotoMetadata (filePath, gpsCoordinates, timestamp, watermarkText) and submits them to the backend via addMultiplePhotos; temporarily stores the photo data URLs in localStorage for later report preview.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Add inspection remarks (with skip option)",
+      "synonyms": [
+        "inspection notes",
+        "observations"
+      ],
+      "description": "Allows inspectors to enter remarks with a character limit, saves them to the backend via addRemarks, and supports skipping by saving empty remarks and continuing to report preview.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Inspection retrieval and user inspection summaries",
+      "synonyms": [
+        "getInspectionById",
+        "recent inspections list"
+      ],
+      "description": "Backend supports fetching a full inspection by ID (access restricted to owner/admin) and returning lightweight InspectionSummary lists per user; frontend displays recent summaries on the dashboard and loads inspection details for report preview.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Search and filtering APIs for inspections (backend)",
+      "synonyms": [
+        "search by vehicle number",
+        "search by make/model",
+        "date range query"
+      ],
+      "description": "Backend exposes queries to search inspections by vehicle number substring, make/model substring, and by date range, enforcing user-only access to own inspections unless caller is admin.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "PDF report preview, print/download flow, and PDF reference saving",
+      "synonyms": [
+        "report preview",
+        "savePDFReport",
+        "print to PDF"
+      ],
+      "description": "Frontend renders a report preview combining vehicle details, locally stored watermarked photos, and remarks, then provides a print-based download flow and saves a generated pdfReference string to the backend via savePDFReport.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "User profile management and dashboard stats (backend)",
+      "synonyms": [
+        "userProfiles",
+        "getDashboardStats"
+      ],
+      "description": "Backend supports saving and retrieving a caller’s user profile (name/contact) with access restrictions, plus a dashboard stats endpoint (total inspections/photos/users) for authorized users.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Canister state migration from older inspection schema",
+      "synonyms": [
+        "migration.mo",
+        "state upgrade"
+      ],
+      "description": "Includes a migration module that upgrades older stored inspection records (with fewer fields) into the current VehicleInspection schema and converts per-user inspection lists from List to Array.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-14",
+      "title": "App shell, theming, and UI framework integration",
+      "synonyms": [
+        "Tailwind theme tokens",
+        "next-themes",
+        "shadcn-style components"
+      ],
+      "description": "Provides a consistent app shell with Header/Footer, toast notifications, Tailwind-based design system with OKLCH color tokens, and system/light/dark theme support.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Pre-inspection checklist/form step (frontend)",
+      "synonyms": [
+        "preInspection form",
+        "checklist tables",
+        "accessories/glass/parts checklist"
+      ],
+      "description": "Adds a dedicated pre-inspection form step in the wizard flow with structured checklist inputs (e.g., accessories, glass status, parts checklist, yes/no fields) validated against a shared schema before proceeding to photo capture and report preview.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-visible-my-reports-experience-that-lets-authenticated-users-access-pdf-reports-for-their-inspections-replace-the-current-dashboard-my-reports-placeholder-navigation-with-a-real-reports-view",
+      "title": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-frontend-inspection-list-report-list-to-the-new-backend-inspection-summaries-api-and-remove-the-current-stubbed-empty-implementation-in-the-react-query-hook-s",
+      "title": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-camera-photo-capture-step-is-clearly-presented-as-the-way-to-add-photos-camera-option-in-the-inspection-workflow-using-existing-photocapturepage-behavior-and-ensure-navigation-into-that-step-is-obvious-and-consistent",
+      "title": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add in-app camera photo capture option for inspection photos (with required permissions and capture flow)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add PDF report generation option in the Kotlin app (compile vehicle details + captured photos into a downloadable/shareable PDF)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement a backend query API that returns the current caller’s inspection summaries for the detailed inspection model, so the frontend can list inspections/reports without stubs.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [
+    "Motoko canister uses Map-based in-memory state for inspections, per-user inspection indexes, and user profiles, with explicit authorization checks on each method.",
+    "Authorization implemented as a reusable Motoko mixin (MixinAuthorization) over an AccessControl state module; admin bootstrap depends on an environment variable token.",
+    "Backend includes a stable-state migration module converting older stored structures (List-based userInspections, older inspection type) to the current schema.",
+    "Frontend uses InternetIdentityProvider (React context) wrapping the app to manage AuthClient, delegation validity, and login/logout state.",
+    "Frontend uses a dedicated useActor hook that recreates the backend actor when identity changes and forces React Query cache invalidation/refetch for dependent queries.",
+    "TanStack React Query is the primary data layer for backend reads/writes, with targeted cache invalidation on mutations.",
+    "Frontend implements a wizard-like page flow managed in App state rather than a router (login → dashboard → details → photos → remarks → PDF preview).",
+    "Photo capture is implemented client-side with MediaDevices + canvas watermarking; captured images are kept as data URLs and persisted temporarily in localStorage.",
+    "UI styling uses TailwindCSS with theme tokens (OKLCH variables) and next-themes for light/dark mode; components resemble shadcn/ui patterns.",
+    "Frontend includes a schema-driven pre-inspection form step (shared validation schema/utilities) integrated into the wizard flow before photo capture."
+  ],
+  "known_issues": [
+    "Backend VehicleInspection.timestamp is never set (initialized to 0 and not updated), making date-range queries and summary timestamps unreliable.",
+    "Frontend “Generate PDF” is a simulated delay and uses window.print on rendered HTML; no real PDF generation or binary storage is implemented.",
+    "Backend stores only PhotoMetadata (filePath, GPS text, watermark text, timestamp) and does not receive/upload actual image bytes; frontend keeps images only in localStorage as data URLs.",
+    "LoginPage presents a mobile number + “Send OTP” flow, but authentication actually uses Internet Identity; the mobile number is not used server-side.",
+    "Duplicate CSS files appear (frontend/src/index.css and frontend/index.css) with different variable sets, which can cause confusion or inconsistent theming depending on build setup.",
+    "AccessControl.getUserRole traps with \"User is not registered\" for non-anonymous callers if initialization hasn’t happened yet; this can surface as runtime errors if methods are called before role assignment.",
+    "Admin bootstrap requires CAFFEINE_ADMIN_TOKEN env var on the canister; missing configuration hard-traps during _initializeAccessControlWithSecret.",
+    "Storing multiple full-resolution photo data URLs in localStorage can exceed browser quotas and fail silently/partially depending on device/browser.",
+    "Dashboard shows recent inspections but lacks pagination/sorting controls; backend provides search endpoints that are not currently surfaced in the shown UI."
+  ],
+  "isFixRequest": false,
+  "gameProjectType": "none",
+  "projectName": "Vehicle Inspection Mobile App",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
