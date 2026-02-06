@@ -1,90 +1,74 @@
 {
   "kind": "build_request",
-  "title": "Expose camera photo capture and PDF report options in the inspection flow",
-  "priority": "normal",
+  "title": "Fix camera capture option in PhotoCapturePage",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "text": "Diagnose and fix the camera start/preview/capture flow used by `frontend/src/pages/PhotoCapturePage.tsx` so that the device camera reliably starts and the preview becomes ready, allowing users to capture photos on supported mobile and desktop browsers.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+          "CAMERA OPTION NOT WORKING"
         ]
       },
       "acceptanceCriteria": [
-        "Dashboard “My Reports” no longer routes to a “Coming Soon” placeholder.",
-        "A reports screen is available in the app UI and is reachable from the Dashboard.",
-        "From the reports screen, a user can select an inspection and open the existing PDF preview page for that inspection."
+        "On a device/browser that supports `getUserMedia`, tapping “Start Camera” shows a live preview within 5 seconds and enables the “Capture Photo” button.",
+        "Tapping “Capture Photo” adds a new thumbnail to the captured photos grid and shows the success toast.",
+        "If camera access is denied, a clear English error message is shown and “Try Again” re-prompts/recovers after the user changes permissions.",
+        "If no camera is available or the browser is unsupported, the page shows the existing user-friendly fallback states (not supported / not found) without crashing.",
+        "Leaving the Photo Capture page stops the camera stream and releases the device camera indicator."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement a backend query API that returns the current caller’s inspection summaries for the detailed inspection model, so the frontend can list inspections/reports without stubs.",
-      "target": "backend",
+      "text": "Ensure the `useCamera` hook import used by `PhotoCapturePage` resolves correctly in production builds and that camera-related runtime errors are surfaced with actionable messages (permission denied, not found, not supported, unknown).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+          "CAMERA OPTION NOT WORKING"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a query method that returns an array of summaries for the caller’s DetailedInspection records (id, vehicle number, make/model, timestamp).",
-        "The method enforces the same access control rules as other user-facing inspection queries (only users/admins as appropriate).",
-        "The method does not trap for valid authenticated users who have zero inspections (returns an empty list)."
+        "The `useCamera` hook file exists at the import path used by `PhotoCapturePage` (`../camera/useCamera`) and is included in the build output.",
+        "If the hook fails to initialize due to missing APIs (e.g., `navigator.mediaDevices`), `PhotoCapturePage` enters the “Camera Not Supported” UI state rather than throwing an uncaught exception.",
+        "Error types returned by the hook map to the existing `getErrorMessage()` cases in `PhotoCapturePage` (permission, not-found, not-supported, unknown)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "text": "Add a lightweight in-app diagnostics view on the Photo Capture page (shown only when camera initialization fails) that displays key capability checks (HTTPS/secure context, `navigator.mediaDevices` availability, detected devices count if accessible, and last error message) to speed up field troubleshooting.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "ab mujhe photo ke liye camara or pdf ka option chahiye"
+          "CAMERA OPTION NOT WORKING"
         ]
       },
       "acceptanceCriteria": [
-        "The inspections list on the Dashboard can display real data (no longer always empty when the user has inspections).",
-        "The reports screen uses the same summaries data source and can navigate to PDF preview for the selected inspection ID.",
-        "Loading and empty states are handled with clear English text (e.g., “Loading reports…”, “No reports yet”)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-12"
-        ],
-        "quotes": [
-          "ab mujhe photo ke liye camara or pdf ka option chahiye"
-        ]
-      },
-      "acceptanceCriteria": [
-        "During the inspection flow, users can clearly reach the Photo Capture page from the preceding step without confusion.",
-        "On Photo Capture page, the primary action to begin taking photos is clearly labeled in English and uses the existing camera start/capture flow.",
-        "If camera access is unsupported or denied, the UI shows an actionable English error message (using the existing error handling) and provides a retry path."
+        "When the camera is in an error state, the UI includes a collapsible “Diagnostics” section with the capability checks and last error text in English.",
+        "The diagnostics view does not display when the camera is working normally.",
+        "No sensitive data (identities/tokens) is displayed in diagnostics."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
-    "Do not modify frontend immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx."
+    "Use English for any user-facing text.",
+    "Do not modify any files under `frontend/src/components/ui` (compose existing Shadcn components instead).",
+    "Respect the existing single-page state navigation pattern in `frontend/src/App.tsx` (no new routing framework)."
   ],
   "nonGoals": [
-    "Do not implement true binary PDF generation/storage inside the canister in this change (keep the existing print/download behavior unless separately requested).",
-    "Do not add third-party authentication providers (Internet Identity only).",
-    "Do not add real-time communication features."
+    "Implementing backend image-byte uploads or server-side photo storage (current design stores only metadata in Motoko).",
+    "Adding third-party camera libraries or native mobile packaging (APK).",
+    "Changing the inspection workflow steps beyond making camera capture functional and diagnosable."
   ],
   "imageRequirements": {
     "required": [],

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAddPhotoToDetailedInspection } from '../hooks/useQueries';
 import type { PhotoMetadata } from '../backend';
 import { useCamera } from '../camera/useCamera';
+import CameraDiagnostics from '../components/camera/CameraDiagnostics';
 
 interface PhotoCapturePageProps {
   inspectionId: bigint | null;
@@ -51,14 +52,18 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
     }
   }, [inspectionId, onNavigate]);
 
+  // Cleanup: stop camera when leaving page
   useEffect(() => {
     return () => {
       if (isActive) {
-        stopCamera();
+        stopCamera().catch(() => {
+          // Fire-and-forget cleanup, safe to ignore errors
+        });
       }
     };
   }, [isActive, stopCamera]);
 
+  // Monitor video readiness with event-driven approach and safe fallback
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !isActive) {
@@ -66,34 +71,60 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
       return;
     }
 
+    let mounted = true;
+
     const checkVideoReady = () => {
-      if (video.videoWidth > 0 && video.videoHeight > 0 && video.readyState >= 2) {
+      if (!mounted || !video) return false;
+      
+      const ready = video.videoWidth > 0 && video.videoHeight > 0 && video.readyState >= 2;
+      if (ready && mounted) {
         setIsVideoReady(true);
       }
+      return ready;
     };
 
     const handleLoadedMetadata = () => {
-      checkVideoReady();
+      if (mounted) {
+        checkVideoReady();
+      }
     };
 
     const handleCanPlay = () => {
-      checkVideoReady();
+      if (mounted) {
+        checkVideoReady();
+      }
     };
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('canplay', handleCanPlay);
 
-    checkVideoReady();
+    // Initial check
+    if (checkVideoReady()) {
+      return () => {
+        mounted = false;
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.removeEventListener('canplay', handleCanPlay);
+      };
+    }
 
-    const pollInterval = setInterval(checkVideoReady, 200);
+    // Polling fallback with safe timeout
+    const pollInterval = setInterval(() => {
+      if (mounted && checkVideoReady()) {
+        clearInterval(pollInterval);
+      }
+    }, 200);
+
     const timeout = setTimeout(() => {
-      clearInterval(pollInterval);
-      if (!isVideoReady && isActive) {
-        toast.error('Camera preview not ready. Please try restarting the camera.');
+      if (mounted) {
+        clearInterval(pollInterval);
+        if (!isVideoReady && isActive) {
+          console.warn('Camera preview not ready after 5 seconds');
+        }
       }
     }, 5000);
 
     return () => {
+      mounted = false;
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('canplay', handleCanPlay);
       clearInterval(pollInterval);
@@ -293,13 +324,14 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
             Back
           </Button>
           <Card className="shadow-lg">
-            <CardContent className="p-8 text-center">
+            <CardContent className="p-8 text-center space-y-4">
               <AlertCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />
               <h3 className="text-xl font-semibold mb-2">Camera Not Supported</h3>
               <p className="text-muted-foreground mb-4">
                 Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari to capture inspection photos.
               </p>
-              <Button onClick={() => onNavigate('pre-inspection-form')} variant="outline">
+              <CameraDiagnostics error={error} />
+              <Button onClick={() => onNavigate('pre-inspection-form')} variant="outline" className="mt-4">
                 Go Back
               </Button>
             </CardContent>
@@ -329,14 +361,24 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
           </CardHeader>
           <CardContent className="space-y-6">
             {error && (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm text-destructive font-medium mb-3">{getErrorMessage()}</p>
-                  <Button variant="outline" size="sm" onClick={handleRetry}>
-                    Try Again
-                  </Button>
+              <div className="space-y-3">
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-destructive font-medium mb-3">{getErrorMessage()}</p>
+                    <Button variant="outline" size="sm" onClick={handleRetry} disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Retrying...
+                        </>
+                      ) : (
+                        'Try Again'
+                      )}
+                    </Button>
+                  </div>
                 </div>
+                <CameraDiagnostics error={error} />
               </div>
             )}
 
@@ -347,7 +389,7 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
                   <p className="text-muted-foreground mb-4">
                     Click the button below to start your device camera and begin capturing inspection photos
                   </p>
-                  <Button onClick={handleStartCamera} size="lg" disabled={isLoading}>
+                  <Button onClick={handleStartCamera} size="lg" disabled={isLoading || isSupported === null}>
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -371,6 +413,7 @@ export default function PhotoCapturePage({ inspectionId, onNavigate }: PhotoCapt
                     playsInline
                     muted
                     className="w-full h-full object-contain"
+                    style={{ minHeight: '400px' }}
                   />
                   <div className="absolute top-4 right-4 flex gap-2">
                     <Button variant="destructive" size="icon" onClick={handleStopCamera} disabled={isLoading}>

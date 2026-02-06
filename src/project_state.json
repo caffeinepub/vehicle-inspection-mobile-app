@@ -1,7 +1,46 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
-  "summary": "A Kotlin Android Vehicle Inspection application with a multi-activity workflow (Login → Dashboard → Vehicle Details). The next planned stage is to add in-app camera photo capture for inspections and generate a PDF report from captured photos and entered vehicle details.",
+  "projectStateVersion": 23,
+  "summary": "A full-stack Internet Computer (DFINITY) vehicle inspection application delivered as a React + TypeScript frontend and Motoko backend canister. The backend stores vehicle inspections (vehicle details, photo metadata, remarks, PDF reference) and enforces role-based access control (admin/user/guest) with secret-token admin bootstrap. The frontend provides a multi-step inspection workflow (Internet Identity auth, validated vehicle details, pre-inspection checklist, camera photos with GPS+timestamp watermarks, remarks, report preview/print, and saving a PDF reference) orchestrated with TanStack React Query and an identity-bound actor setup. The app now also includes PWA install support (manifest, service worker, install prompt/help) and generated app icons.",
+  "architectural_notes": [
+    "Motoko canister uses Map-based in-memory state for inspections, per-user inspection indexes, and user profiles, with explicit authorization checks on each method.",
+    "Authorization implemented as a reusable Motoko mixin (MixinAuthorization) over an AccessControl state module; admin bootstrap depends on an environment variable token.",
+    "Backend includes a stable-state migration module converting older stored structures (List-based userInspections, older inspection type) to the current schema.",
+    "Frontend uses InternetIdentityProvider (React context) wrapping the app to manage AuthClient, delegation validity, and login/logout state.",
+    "Frontend uses a dedicated useActor hook that recreates the backend actor when identity changes and forces React Query cache invalidation/refetch for dependent queries.",
+    "TanStack React Query is the primary data layer for backend reads/writes, with targeted cache invalidation on mutations.",
+    "Frontend implements a wizard-like page flow managed in App state rather than a router (login → dashboard → details → photos → remarks → PDF preview).",
+    "Photo capture is implemented client-side with MediaDevices + canvas watermarking; captured images are kept as data URLs and persisted temporarily in localStorage.",
+    "UI styling uses TailwindCSS with theme tokens (OKLCH variables) and next-themes for light/dark mode; components resemble shadcn/ui patterns.",
+    "Frontend includes a schema-driven pre-inspection form step (shared validation schema/utilities) integrated into the wizard flow before photo capture."
+  ],
+  "known_issues": [
+    "Backend VehicleInspection.timestamp is never set (initialized to 0 and not updated), making date-range queries and summary timestamps unreliable.",
+    "Frontend “Generate PDF” is a simulated delay and uses window.print on rendered HTML; no real PDF generation or binary storage is implemented.",
+    "Backend stores only PhotoMetadata (filePath, GPS text, watermark text, timestamp) and does not receive/upload actual image bytes; frontend keeps images only in localStorage as data URLs.",
+    "LoginPage presents a mobile number + “Send OTP” flow, but authentication actually uses Internet Identity; the mobile number is not used server-side.",
+    "Duplicate CSS files appear (frontend/src/index.css and frontend/index.css) with different variable sets, which can cause confusion or inconsistent theming depending on build setup.",
+    "AccessControl.getUserRole traps with \"User is not registered\" for non-anonymous callers if initialization hasn’t happened yet; this can surface as runtime errors if methods are called before role assignment.",
+    "Admin bootstrap requires CAFFEINE_ADMIN_TOKEN env var on the canister; missing configuration hard-traps during _initializeAccessControlWithSecret.",
+    "Storing multiple full-resolution photo data URLs in localStorage can exceed browser quotas and fail silently/partially depending on device/browser.",
+    "Dashboard shows recent inspections but lacks pagination/sorting controls; backend provides search endpoints that are not currently surfaced in the shown UI.",
+    "Camera option is not working (user reports camera capture flow failing)."
+  ],
+  "isFixRequest": true,
+  "generatedImages": [
+    {
+      "filename": "frontend/public/assets/generated/app-icon.dim_192x192.png",
+      "description": "Generated PWA app icon (192x192) for web manifest/install.",
+      "targetWidth": 192,
+      "targetHeight": 192
+    },
+    {
+      "filename": "frontend/public/assets/generated/app-icon.dim_512x512.png",
+      "description": "Generated PWA app icon (512x512) for web manifest/install.",
+      "targetWidth": 512,
+      "targetHeight": 512
+    }
+  ],
   "existing_features": [
     {
       "id": "IF-1",
@@ -175,76 +214,65 @@
       "version": 1
     },
     {
-      "id": "feature-add-a-user-visible-my-reports-experience-that-lets-authenticated-users-access-pdf-reports-for-their-inspections-replace-the-current-dashboard-my-reports-placeholder-navigation-with-a-real-reports-view",
-      "title": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "id": "IF-16",
+      "title": "Frontend profile setup modal (user profile capture)",
+      "synonyms": [
+        "ProfileSetupModal",
+        "profile onboarding"
+      ],
+      "description": "Adds a dedicated frontend modal flow to collect and save a user’s profile information (e.g., name/contact) to the backend, complementing the existing backend profile endpoints.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Reports page for browsing/viewing past inspections",
+      "synonyms": [
+        "ReportsPage",
+        "inspection reports list"
+      ],
+      "description": "Introduces a dedicated Reports page in the frontend UI to browse previously created inspections and open an inspection/report view, separate from the main inspection creation wizard flow.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "PWA install support (manifest, service worker, install prompt/help page)",
+      "synonyms": [
+        "Progressive Web App",
+        "offline-ready shell",
+        "install prompt"
+      ],
+      "description": "Adds Progressive Web App capabilities via a web manifest, registered service worker, generated app icons, and UX helpers (install prompt hook and an Install Help page) to support add-to-home-screen installation flows.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-diagnose-and-fix-the-camera-start-preview-capture-flow-used-by-frontend-src-pages-photocapturepage-tsx-so-that-the-device-camera-reliably-starts-and-the-preview-becomes-ready-allowing-users-to-capture-photos-on-supported-mobile-and-desktop-browsers",
+      "title": "Diagnose and fix the camera start/preview/capture flow used by `frontend/src/pages/PhotoCapturePage.tsx` so that the device camera reliably starts and the preview becomes ready, allowing users to capture photos on supported mobile and desktop browsers.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-wire-the-frontend-inspection-list-report-list-to-the-new-backend-inspection-summaries-api-and-remove-the-current-stubbed-empty-implementation-in-the-react-query-hook-s",
-      "title": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "id": "feature-ensure-the-usecamera-hook-import-used-by-photocapturepage-resolves-correctly-in-production-builds-and-that-camera-related-runtime-errors-are-surfaced-with-actionable-messages-permission-denied-not-found-not-supported-unknown",
+      "title": "Ensure the `useCamera` hook import used by `PhotoCapturePage` resolves correctly in production builds and that camera-related runtime errors are surfaced with actionable messages (permission denied, not found, not supported, unknown).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-lightweight-in-app-diagnostics-view-on-the-photo-capture-page-shown-only-when-camera-initialization-fails-that-displays-key-capability-checks-https-secure-context-navigator-mediadevices-availability-detected-devices-count-if-accessible-and-last-error-message-to-speed-up-field-troubleshooting",
+      "title": "Add a lightweight in-app diagnostics view on the Photo Capture page (shown only when camera initialization fails) that displays key capability checks (HTTPS/secure context, `navigator.mediaDevices` availability, detected devices count if accessible, and last error message) to speed up field troubleshooting.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-ensure-the-camera-photo-capture-step-is-clearly-presented-as-the-way-to-add-photos-camera-option-in-the-inspection-workflow-using-existing-photocapturepage-behavior-and-ensure-navigation-into-that-step-is-obvious-and-consistent",
-      "title": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add in-app camera photo capture option for inspection photos (with required permissions and capture flow)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add PDF report generation option in the Kotlin app (compile vehicle details + captured photos into a downloadable/shareable PDF)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Implement a backend query API that returns the current caller’s inspection summaries for the detailed inspection model, so the frontend can list inspections/reports without stubs.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    }
-  ],
-  "architectural_notes": [
-    "Motoko canister uses Map-based in-memory state for inspections, per-user inspection indexes, and user profiles, with explicit authorization checks on each method.",
-    "Authorization implemented as a reusable Motoko mixin (MixinAuthorization) over an AccessControl state module; admin bootstrap depends on an environment variable token.",
-    "Backend includes a stable-state migration module converting older stored structures (List-based userInspections, older inspection type) to the current schema.",
-    "Frontend uses InternetIdentityProvider (React context) wrapping the app to manage AuthClient, delegation validity, and login/logout state.",
-    "Frontend uses a dedicated useActor hook that recreates the backend actor when identity changes and forces React Query cache invalidation/refetch for dependent queries.",
-    "TanStack React Query is the primary data layer for backend reads/writes, with targeted cache invalidation on mutations.",
-    "Frontend implements a wizard-like page flow managed in App state rather than a router (login → dashboard → details → photos → remarks → PDF preview).",
-    "Photo capture is implemented client-side with MediaDevices + canvas watermarking; captured images are kept as data URLs and persisted temporarily in localStorage.",
-    "UI styling uses TailwindCSS with theme tokens (OKLCH variables) and next-themes for light/dark mode; components resemble shadcn/ui patterns.",
-    "Frontend includes a schema-driven pre-inspection form step (shared validation schema/utilities) integrated into the wizard flow before photo capture."
-  ],
-  "known_issues": [
-    "Backend VehicleInspection.timestamp is never set (initialized to 0 and not updated), making date-range queries and summary timestamps unreliable.",
-    "Frontend “Generate PDF” is a simulated delay and uses window.print on rendered HTML; no real PDF generation or binary storage is implemented.",
-    "Backend stores only PhotoMetadata (filePath, GPS text, watermark text, timestamp) and does not receive/upload actual image bytes; frontend keeps images only in localStorage as data URLs.",
-    "LoginPage presents a mobile number + “Send OTP” flow, but authentication actually uses Internet Identity; the mobile number is not used server-side.",
-    "Duplicate CSS files appear (frontend/src/index.css and frontend/index.css) with different variable sets, which can cause confusion or inconsistent theming depending on build setup.",
-    "AccessControl.getUserRole traps with \"User is not registered\" for non-anonymous callers if initialization hasn’t happened yet; this can surface as runtime errors if methods are called before role assignment.",
-    "Admin bootstrap requires CAFFEINE_ADMIN_TOKEN env var on the canister; missing configuration hard-traps during _initializeAccessControlWithSecret.",
-    "Storing multiple full-resolution photo data URLs in localStorage can exceed browser quotas and fail silently/partially depending on device/browser.",
-    "Dashboard shows recent inspections but lacks pagination/sorting controls; backend provides search endpoints that are not currently surfaced in the shown UI."
-  ],
-  "isFixRequest": false,
+  "new_feature_requests": [],
   "gameProjectType": "none",
   "projectName": "Vehicle Inspection Mobile App",
   "clarification_mode": "instant",

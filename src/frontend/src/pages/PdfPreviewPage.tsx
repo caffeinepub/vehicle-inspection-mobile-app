@@ -187,7 +187,7 @@ export default function PdfPreviewPage({ inspectionId, onNavigate }: PdfPreviewP
                 <div className="header-title">DINESH KUMAR JANGIR</div>
                 <div className="header-subtitle">Surveyor & Loss Assessor</div>
                 <div className="header-subtitle">Licence no. SLA-121529</div>
-                <div className="header-subtitle">Validity: 26.01.2026</div>
+                <div className="header-subtitle">Validity: 26.01.2029</div>
                 <div className="header-subtitle" style={{ marginTop: '8px', fontWeight: 'bold' }}>
                   Break-in survey report- Private Car
                 </div>

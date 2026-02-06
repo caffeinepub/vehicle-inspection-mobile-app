@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Make “My Reports” functional and ensure users can clearly capture photos via the camera and access PDF inspection reports.
+**Goal:** Fix the Photo Capture page so the device camera reliably starts, shows a live preview, and captures photos with clear, actionable error handling and lightweight diagnostics when initialization fails.
 
 **Planned changes:**
-- Replace the Dashboard “My Reports” placeholder route with a real Reports screen for authenticated users.
-- Add a backend query API to return the current user’s DetailedInspection summaries (id, vehicle number, make/model, timestamp) with proper access control and empty-list handling.
-- Wire the Dashboard inspections list and the Reports screen to the new summaries API, removing stubbed/always-empty frontend data hooks and adding clear loading/empty states.
-- Clarify entry into the existing PhotoCapturePage during the inspection flow with clear English labels, consistent navigation, and actionable error messaging with retry when camera access is denied/unsupported.
+- Diagnose and correct the camera start/preview/capture lifecycle in `frontend/src/pages/PhotoCapturePage.tsx` to ensure the preview becomes ready and capture works on supported browsers.
+- Ensure the `useCamera` hook import path used by `PhotoCapturePage` (`../camera/useCamera`) exists/ships in production builds and that camera initialization failures map to supported error states (permission, not-found, not-supported, unknown) without uncaught exceptions.
+- Add a collapsible, in-app “Diagnostics” section that appears only when camera initialization fails, showing secure context/API capability checks, accessible device count, and the last error message (no sensitive data).
+- Ensure leaving the Photo Capture page stops the active camera stream and releases the device camera indicator.
 
-**User-visible outcome:** Users can navigate to “My Reports,” see their inspection list, select an inspection to open its existing PDF preview, and clearly access the camera-based photo capture step during an inspection.
+**User-visible outcome:** Users can start the camera and see a live preview quickly, capture photos into the thumbnail grid with a success toast, and if the camera fails (permissions/unsupported/not found), they see a clear English message plus an optional diagnostics panel and can “Try Again” to recover.

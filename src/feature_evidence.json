@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-user-visible-my-reports-experience-that-lets-authenticated-users-access-pdf-reports-for-their-inspections-replace-the-current-dashboard-my-reports-placeholder-navigation-with-a-real-reports-view",
-      "featureTitle": "Add a user-visible “My Reports” experience that lets authenticated users access PDF reports for their inspections (replace the current Dashboard “My Reports” placeholder navigation with a real reports view).",
+      "featureId": "feature-diagnose-and-fix-the-camera-start-preview-capture-flow-used-by-frontend-src-pages-photocapturepage-tsx-so-that-the-device-camera-reliably-starts-and-the-preview-becomes-ready-allowing-users-to-capture-photos-on-supported-mobile-and-desktop-browsers",
+      "featureTitle": "Diagnose and fix the camera start/preview/capture flow used by `frontend/src/pages/PhotoCapturePage.tsx` so that the device camera reliably starts and the preview becomes ready, allowing users to capture photos on supported mobile and desktop browsers.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/ReportsPage.tsx"
+        "frontend/src/pages/PhotoCapturePage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -24,12 +22,31 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-wire-the-frontend-inspection-list-report-list-to-the-new-backend-inspection-summaries-api-and-remove-the-current-stubbed-empty-implementation-in-the-react-query-hook-s",
-      "featureTitle": "Wire the frontend inspection list/report list to the new backend inspection summaries API and remove the current stubbed empty implementation in the React Query hook(s).",
+      "featureId": "feature-ensure-the-usecamera-hook-import-used-by-photocapturepage-resolves-correctly-in-production-builds-and-that-camera-related-runtime-errors-are-surfaced-with-actionable-messages-permission-denied-not-found-not-supported-unknown",
+      "featureTitle": "Ensure the `useCamera` hook import used by `PhotoCapturePage` resolves correctly in production builds and that camera-related runtime errors are surfaced with actionable messages (permission denied, not found, not supported, unknown).",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/ReportsPage.tsx"
+        "frontend/src/pages/PhotoCapturePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-lightweight-in-app-diagnostics-view-on-the-photo-capture-page-shown-only-when-camera-initialization-fails-that-displays-key-capability-checks-https-secure-context-navigator-mediadevices-availability-detected-devices-count-if-accessible-and-last-error-message-to-speed-up-field-troubleshooting",
+      "featureTitle": "Add a lightweight in-app diagnostics view on the Photo Capture page (shown only when camera initialization fails) that displays key capability checks (HTTPS/secure context, `navigator.mediaDevices` availability, detected devices count if accessible, and last error message) to speed up field troubleshooting.",
+      "files": [
+        "frontend/src/components/camera/CameraDiagnostics.tsx",
+        "frontend/src/pages/PhotoCapturePage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,27 +59,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-camera-photo-capture-step-is-clearly-presented-as-the-way-to-add-photos-camera-option-in-the-inspection-workflow-using-existing-photocapturepage-behavior-and-ensure-navigation-into-that-step-is-obvious-and-consistent",
-      "featureTitle": "Ensure the camera photo capture step is clearly presented as the way to add photos (camera option) in the inspection workflow, using existing PhotoCapturePage behavior, and ensure navigation into that step is obvious and consistent.",
-      "files": [
-        "frontend/src/pages/PhotoCapturePage.tsx",
-        "frontend/src/pages/PreInspectionFormPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ClipboardList, FileText, Plus } from 'lucide-react';
+import { ClipboardList, FileText, Plus, Smartphone } from 'lucide-react';
 import { useGetUserInspections } from '../hooks/useQueries';
 
 interface DashboardPageProps {
-  onNavigate: (page: 'vehicle-details' | 'reports') => void;
+  onNavigate: (page: 'vehicle-details' | 'reports' | 'install-help') => void;
 }
 
 export default function DashboardPage({ onNavigate }: DashboardPageProps) {
@@ -55,6 +55,28 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
+              <CardTitle className="text-lg">Install App</CardTitle>
+            </div>
+            <CardDescription>
+              Add this app to your home screen for quick access
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => onNavigate('install-help')}
+            >
+              <Smartphone className="w-4 h-4 mr-2" />
+              View Installation Instructions
+            </Button>
+          </CardContent>
+        </Card>
 
         {isLoading && (
           <Card>

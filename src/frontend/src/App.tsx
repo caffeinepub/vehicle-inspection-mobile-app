@@ -7,13 +7,14 @@ import PhotoCapturePage from './pages/PhotoCapturePage';
 import RemarksPage from './pages/RemarksPage';
 import PdfPreviewPage from './pages/PdfPreviewPage';
 import ReportsPage from './pages/ReportsPage';
+import InstallHelpPage from './pages/InstallHelpPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { Toaster } from './components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
 
-type Page = 'login' | 'dashboard' | 'vehicle-details' | 'pre-inspection-form' | 'photo-capture' | 'remarks' | 'pdf-preview' | 'reports';
+type Page = 'login' | 'dashboard' | 'vehicle-details' | 'pre-inspection-form' | 'photo-capture' | 'remarks' | 'pdf-preview' | 'reports' | 'install-help';
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
@@ -82,6 +83,8 @@ export default function App() {
         );
       case 'reports':
         return <ReportsPage onNavigate={handleNavigateWithInspection} />;
+      case 'install-help':
+        return <InstallHelpPage onNavigate={setCurrentPage} />;
       default:
         return <DashboardPage onNavigate={setCurrentPage} />;
     }

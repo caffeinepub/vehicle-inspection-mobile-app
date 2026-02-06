@@ -1,7 +1,7 @@
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
-import { ClipboardList, LogOut, User, Home } from 'lucide-react';
+import { ClipboardList, LogOut, User, Home, Smartphone } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,21 +10,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { usePwaInstallPrompt } from '../hooks/usePwaInstallPrompt';
 
 interface HeaderProps {
   currentPage: string;
-  onNavigate: (page: 'dashboard') => void;
+  onNavigate: (page: 'dashboard' | 'install-help') => void;
 }
 
 export default function Header({ currentPage, onNavigate }: HeaderProps) {
   const { identity, clear } = useInternetIdentity();
   const queryClient = useQueryClient();
+  const { isInstallable, promptInstall } = usePwaInstallPrompt();
 
   const isAuthenticated = !!identity;
 
   const handleLogout = async () => {
     await clear();
     queryClient.clear();
+  };
+
+  const handleInstallClick = async () => {
+    if (isInstallable) {
+      const installed = await promptInstall();
+      if (!installed) {
+        // If user dismissed or prompt failed, show instructions
+        onNavigate('install-help');
+      }
+    } else {
+      // No native prompt available, show instructions
+      onNavigate('install-help');
+    }
   };
 
   const getUserDisplayName = () => {
@@ -70,6 +85,11 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
                 <DropdownMenuItem disabled>
                   <User className="w-4 h-4 mr-2" />
                   {getUserDisplayName()}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleInstallClick}>
+                  <Smartphone className="w-4 h-4 mr-2" />
+                  Install App
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
